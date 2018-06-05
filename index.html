@@ -1,0 +1,441 @@
+<html><head>
+    <script src="pixi.min.js"></script>
+	<script src="howler.min.js"></script>
+    <script src="p2.min.js"></script>
+    <script src="glax.js"></script>
+    <script src="relay.js"></script>
+    <script src="hs.js"></script>
+    <script src="main.js"></script>
+
+		<link href="https://fonts.googleapis.com/css?family=Montserrat|Ubuntu|Ubuntu+Condensed" rel="stylesheet">
+		<meta name="theme-color" content="#111111">
+		<meta name="mobile-web-app-capable" content="yes">
+		<meta name="viewport" content="width=device-width, initial-scale=.70, maximum-scale=.70">
+
+		<title> GLAX </title>
+		<style> 
+
+			@font-face { font-family: TypoGraphica; src: url('TypoGraphica.otf'); }
+			html {
+				background: black;
+				overflow: hidden;
+			}
+			input {
+				padding-left: 8px;
+				height: 30px;
+				font-family: Ubuntu;
+				font-weight: bold;
+				font-size: large;
+				color: #646464;
+				position: absolute;
+				border: 1px solid #2f2f2f;
+			}
+
+			body{
+				position: absolute;
+				margin: 0px;
+				height: 100%;
+				width: 100%;
+				background-color: #DCD9D4; 
+				background-image: linear-gradient(to bottom, rgba(255,255,255,0.50) 0%, rgba(0,0,0,0.50) 100%), radial-gradient(at 50% 0%, rgba(255,255,255,0.10) 0%, rgba(0,0,0,0.50) 50%); 
+				background-blend-mode: soft-light,screen;
+				box-shadow: inset 0 0 250px rgba(0, 0, 0, .50);
+				z-index: 1;
+			}
+			body:before {
+			    content: "";
+				position: absolute;
+				width: 100%;
+				height: 100%;
+				background: url(resources/textures/misc/gray_noise.png);
+				opacity: .1;
+				z-index: -1;
+			}
+			canvas {
+				position: fixed;
+				z-index: 1;
+				width: 1280; 
+				height: 720;
+				top:0;bottom:0;left:0;right:0;margin:auto;
+			}
+			#logo {
+				display: block;
+				left: 0px;
+				margin: 0px;
+				position: relative;
+				font-family: Ubuntu;
+				font-size: 64px;
+				font-weight: bold;
+				letter-spacing: 3px;
+				line-height: 66px;
+				padding: 0px 0px 0px 18px;
+				background: black;
+				color: white;
+			}
+			.fullw {
+				display: block;
+				width: 100%;
+			}
+			.inptitle {
+				padding-left: 8px;
+				margin: 0px;
+				font-family: Tahoma;
+			}
+
+
+			.hstbl {
+				width: 100%;
+				border-spacing: 0;
+				font-family: verdana, arial, helvetica, sans-serif;
+				font-size: 13px;
+				color: whitesmoke;
+				background: black;
+				line-height: 20px;
+				text-shadow: 1px 1px 0px rgba(0,0,0,0.4);
+			}
+			.hstbl td {
+				margin: 0px;
+				padding: 0px;
+			}
+
+			/* Place-Column Colors */
+			.hstbl th {
+			    line-height: 16px;
+			}
+			.hstbl th:nth-of-type(1) {
+				width: 20px;
+			}
+			.hstbl th:nth-of-type(3) {
+				width: 40px;
+			}
+			.hstbl th:nth-of-type(4) {
+				width: 40px;
+			}
+			.hstbl tr:nth-of-type(2n+0) td:nth-of-type(1) {
+				background: #b30000;
+				text-align: center;
+				font-weight: bold;
+			}
+			.hstbl tr:nth-of-type(2n+1) td:nth-of-type(1) {
+				background: #7d0000;
+				text-align: center;
+				font-weight: bold;
+			}
+
+			/* Name-Column Colors */
+			.hstbl tr:nth-of-type(2n+0) td:nth-of-type(2) {
+				padding: 0 0 0 16px;
+				background: #353535;
+			}
+			.hstbl tr:nth-of-type(2n+1) td:nth-of-type(2) {
+				padding: 0 0 0 16px;
+				background: #282828;
+			}
+
+			/* Kills-Column Colors */
+			.hstbl tr:nth-of-type(2n+0) td:nth-of-type(3) {
+				text-align: center;
+				background: #96bed9;
+			}
+			.hstbl tr:nth-of-type(2n+1) td:nth-of-type(3) {
+				text-align: center;
+				background: #70a7cd;
+			}
+
+			/* Wins-Column Colors */
+			.hstbl tr:nth-of-type(2n+0) td:nth-of-type(4) {
+				text-align: center;
+				background: #4b90be;
+			}
+			.hstbl tr:nth-of-type(2n+1) td:nth-of-type(4) {
+				text-align: center;
+				background: #367096;
+			}
+
+		</style>
+    </head>
+<body>
+
+<div id="all" style="
+    height: 100%;
+    width: 100%;
+">
+
+<div id="mainui" style="
+	display: none;
+    height: 200px;
+    background: #c63c18;
+    border: 2px solid #000000;
+    left: calc(50% - 202px);
+    top: calc(50% - 100px);
+    width: 400px;
+    position: relative;
+    margin: 0px auto 0px auto;
+    vertical-align: middle;
+    border-radius: 4px;
+    float: left;
+">
+  <div id="createChannel2" style="
+    position: absolute;
+    top: 146px;
+    left: 20px;
+    box-shadow: rgb(207, 134, 108) 0px 1px 0px 0px inset;
+    background: linear-gradient(rgb(208, 69, 27) 5%, rgb(188, 51, 21) 100%) rgb(208, 69, 27);
+    border-radius: 3px;
+    border: 1px solid rgb(148, 41, 17);
+    display: inline-block;
+    cursor: pointer;
+    color: rgb(255, 255, 255);
+    font-family: Montserrat;
+    font-size: 16px;
+    text-decoration: none;
+    text-shadow: rgb(133, 70, 41) 0px 1px 0px;
+    width: 356px;
+    text-align: center;
+    height: 40px;
+    "><span style="
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%,-50%);
+    position: absolute;
+">Find Battle</span></div>
+
+<span id="muistatus" style="
+    padding: 8px;
+    font-family: Ubuntu;
+    font-size: 24px;
+    color: hsla(0, 0%, 94%, 1);
+    display: block;
+    background: #000000;
+    border-bottom: 1px solid hsl(0, 0%, 18%);
+    font-weight: bold;
+    line-height: 20px;
+">Victory!</span><span style="
+    height: 16px;
+    padding: 8px;
+    font-family: Ubuntu Condensed;
+    font-size: 16px;
+    display: block;
+    background: linear-gradient(to bottom, #262626 , #3b3b3b);
+    text-align: center;
+"><table style="
+    width: 100%;
+    line-height: 0px;
+    color: #70a7cd;
+">
+	<tbody><tr>
+		
+		<th id="muikills">Kills: </th><th id="muiwins">Wins: </th>
+	</tr>
+</tbody></table></span><span style="
+    height: 16px;
+    padding: 8px;
+    font-family: Ubuntu Condensed;
+    font-size: 16px;
+    display: block;
+    background: linear-gradient(to bottom, #303030 , #474747);
+"><table style="
+    width: 100%;
+    line-height: 0px;
+    color: #4b90be;
+">
+	<tbody><tr>
+		
+		<th id="muitkills">Total Kills: </th><th id="muitwins">Total Wins: </th>
+	</tr>
+</tbody></table></span><span style="
+    height: 16px;
+    padding: 8px;
+    font-family: Ubuntu Condensed;
+    font-size: 16px;
+    color: white;
+    display: block;
+    background: gray;
+"> </span></div>
+
+
+
+
+<div id="startui" style="
+    height: 200px;
+    background: white;
+    border: 2px solid #000000;
+	left: calc(50% - 202px);
+    top: calc(50% - 100px);
+    width: 400px;
+    position: relative;
+    margin: 0px auto 0px auto;
+    vertical-align: middle;
+	border-radius: 4px;
+	float: left;
+"><span id="logo">Glax</span>
+<span style="
+    font-family: Ubuntu Condensed;
+    font-size: 16px;
+    position: absolute;
+    top: 6px;
+    left: 170px;
+    color: darkgray;
+">Controls:<br>Click and drag to move player<br>Solo: Double-click to respawn or shoot</span>
+<span style="
+    font-family: Ubuntu Condensed;
+    font-size: 18px;
+    position: absolute;
+    top: 80px;
+    left: 20px;
+">Multiplayer Offline</span>
+  
+  
+  <input onfocus="" id="name" style="
+    top: 100px;
+    left: 21px;
+    width: 356;
+    visibility: hidden;
+"> 
+
+
+  <div id="survivalMode" style="
+    position: absolute;
+    top: 140px;
+    left: 20px;
+    box-shadow: hsla(226, 51%, 62%, 1) 0px 1px 0px 0px inset;
+    background: linear-gradient(hsla(224, 77%, 46%, 1) 5%, hsla(221, 80%, 41%, 1) 100%) hsla(224, 77%, 46%, 1);
+    border-radius: 3px;
+    border: 1px solid hsla(221, 79%, 32%, 1);
+    display: inline-block;
+    cursor: pointer;
+    color: rgb(255, 255, 255);
+    font-family: Montserrat;
+    font-size: 16px;
+    text-decoration: none;
+    text-shadow: hsla(229, 53%, 34%, 1) 0px 1px 0px;
+    width: 356px;
+    text-align: center;
+    height: 40px;
+    "><span style="
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%,-50%);
+    position: absolute;
+" onclick="document.location=document.location+'/survival'">Single Player</span></div>
+
+  <div id="createChannel" style="
+    position: absolute;
+    top: 140px;
+    left: 202px;
+    box-shadow: rgb(207, 134, 108) 0px 1px 0px 0px inset;
+    background: linear-gradient(rgb(208, 69, 27) 5%, rgb(188, 51, 21) 100%) rgb(208, 69, 27);
+    border-radius: 3px;
+    border: 1px solid rgb(148, 41, 17);
+    display: inline-block;
+    cursor: pointer;
+    color: rgb(255, 255, 255);
+    font-family: Montserrat;
+    font-size: 16px;
+    text-decoration: none;
+    text-shadow: rgb(133, 70, 41) 0px 1px 0px;
+    width: 174px;
+    text-align: center;
+    height: 40px;
+    visibility: hidden;
+    "><span style="
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%,-50%);
+    position: absolute;
+">Multi Play</span></div>
+
+
+</div>
+
+
+<div id="highui" style="
+    background: white;
+    border: 1px solid #000000;
+    top: calc(48% - 100px);
+    width: 260px;
+    position: relative;
+    margin-right: calc(50% - 470px);
+    float: right;
+    vertical-align: middle;
+	border-radius: 4px;
+	display: none;
+">
+
+<div style="
+    display: block;
+    width: 100%;
+    height: 19px;
+    background: #000000;
+">
+<span id="plcnt" style="
+    position: static;
+    font-family: Ubuntu Condensed;
+    padding: 0px 7px 0px 8px;
+    float: right;
+    background: #37be49;
+">Players Online: </span>
+<span style="
+    position: relative;
+    font-family: verdana, arial, helvetica, sans-serif;
+	font-size: 14px;
+    padding: 0px 0px 0px 10px;
+    float: left;
+    font-weight: bold;
+    color: white;
+">Highscores</span>
+</div>
+
+<table class="hstbl">
+	<tbody><tr>
+		<th>#</th>
+		<th>Name</th> 
+		<th>Kills</th>
+		<th>Wins</th>
+	</tr>
+</tbody></table>
+
+</div>
+
+<div id="waitui" style="display: none; height: 200px; background: white; border: 2px solid rgb(0, 0, 0); top: calc(50% - 100px); width: 400px; position: relative; margin: auto; vertical-align: middle; border-radius: 4px;">
+<span id="waitstatus" style="
+    font-family: Montserrat;
+    font-size: 24;
+    text-align: center;
+    display: block;
+    font-weight: bold;
+    background: black;
+    color: limegreen;
+    padding: 0px 0px 2px 0px;
+">Waiting for Opponent</span>
+<br><br>
+
+<span id="player1" style="
+    font-family: Ubuntu Condensed;
+    font-size: 24;
+    padding-left: 18px;
+    display: block;
+    background: #eaeaea;
+">Searching...</span>
+<span style="
+    font-family: Ubuntu Condensed;
+    font-size: 24;
+    text-align: center;
+    font-weight: 800;
+    display: block;
+"> vs </span>
+<span id="player2" style="
+    font-family: Ubuntu Condensed;
+    font-size: 24;
+    text-align: right;
+    display: block;
+    padding-right: 18px;
+    background: #eaeaea;
+">Searching...</span>
+
+</div>
+
+</div>
+
+
+<canvas width="1280" height="720" style="touch-action: none; display: none; cursor: inherit;"></canvas></body><canvas width="1280" height="720" style="touch-action: none; display: none; cursor: inherit;"></canvas></html>
